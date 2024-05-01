@@ -33,7 +33,6 @@ error_code_t lm75bdInit(lm75bd_config_t *config) {
 #define TEMP_WRITE_BUFF_SIZE 1U
 #define TEMP_READ_BUFF_SIZE 2U
 #define TEMP_CONVERSION_VAL 0.125f
-#define ELEVEN_BIT_MASK 0x07FFU
 error_code_t readTempLM75BD(uint8_t devAddr, float *temp) {
   error_code_t errCode;
 
