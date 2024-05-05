@@ -47,6 +47,11 @@ error_code_t thermalMgrSendEvent(thermal_mgr_event_t *event) {
     return ERR_CODE_INVALID_ARG;
   }
 
+  /* Check if the queue is initialized */
+  if (thermalMgrQueueHandle == NULL) {
+    return ERR_CODE_INVALID_STATE;
+  }
+
   /* Send an event to the thermal manager queue */
   if (xQueueSend(thermalMgrQueueHandle, event, 0) != pdTRUE) {
     return ERR_CODE_INVALID_QUEUE_MSG;
