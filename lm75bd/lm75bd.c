@@ -15,6 +15,11 @@
 #define TEMP_CONVERSION_VAL 0.125f  /* Digital to Analog conversion rate */
 #define ELEVEN_BIT_MASK 0x07FFU     /* Mask to take first 11 bits from lsb side -> 0000 0111 1111 1111 */
 
+/* Macros for readTempLM75BD function */
+#define TEMP_WRITE_BUFF_SIZE 1U     /* Size of buffer for writing temperature data request */
+#define TEMP_READ_BUFF_SIZE 2U      /* Size of buffer for reading temperature data */
+#define TEMP_CONVERSION_VAL 0.125f  /* Conversion value from raw temperature data to temperature in celsisus */
+
 error_code_t lm75bdInit(lm75bd_config_t *config) {
   error_code_t errCode;
 
@@ -30,11 +35,12 @@ error_code_t lm75bdInit(lm75bd_config_t *config) {
   return ERR_CODE_SUCCESS;
 }
 
-#define TEMP_WRITE_BUFF_SIZE 1U
-#define TEMP_READ_BUFF_SIZE 2U
-#define TEMP_CONVERSION_VAL 0.125f
 error_code_t readTempLM75BD(uint8_t devAddr, float *temp) {
   error_code_t errCode;
+
+  if (temp == NULL) {
+    return ERR_CODE_INVALID_ARG;
+  }
 
   // Stores the register address to be written
   uint8_t writeBuff = LM75BD_REG_TEMP;
@@ -50,11 +56,9 @@ error_code_t readTempLM75BD(uint8_t devAddr, float *temp) {
   // Stores if the temperature is positive or negative
   uint8_t isTempPositive;
 
-  errCode = i2cSendTo(LM75BD_OBC_I2C_ADDR, &writeBuff, TEMP_WRITE_BUFF_SIZE);
-  if (errCode != ERR_CODE_SUCCESS) return errCode;
+  RETURN_IF_ERROR_CODE(i2cSendTo(LM75BD_OBC_I2C_ADDR, &writeBuff, TEMP_WRITE_BUFF_SIZE));
 
-  errCode = i2cReceiveFrom(LM75BD_OBC_I2C_ADDR, readBuff, TEMP_READ_BUFF_SIZE);
-  if (errCode != ERR_CODE_SUCCESS) return errCode;
+  RETURN_IF_ERROR_CODE(i2cReceiveFrom(LM75BD_OBC_I2C_ADDR, readBuff, TEMP_READ_BUFF_SIZE));
 
   // Assemble 16-bit value
   tempRegValue |= (readBuff[0] << 8);
